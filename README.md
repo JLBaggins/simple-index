@@ -220,7 +220,7 @@ module.exports = {
 }
 ```
 
-The simple-index module will automatically search for and use the config file and construct the database(s) in the indexedDB. The prefered place to save the file is in the root of the app. If using a bundler such as webpack, a resolve alias will need to be included in the webpack config file:
+The simple-index module will automatically search for and use the config file and construct the indexedDB databases(s). The prefered place to save the file is in the root of the app. If using a bundler such as webpack, a resolve alias will need to be included in the webpack config file:
 ```
 resolve: {
  alias: {
@@ -234,7 +234,7 @@ resolve: {
 ```
 mode: either "development" or "production",
 ```
-"development" mode will print errors to the console. "production" silences those errors. simple-index will generally work aroung errors, however, it's helpful to understand what's happening in the package to create an app that works as intended. Defaults to "production".
+"development" mode will print errors to the console. "production" silences those errors. simple-index will generally work around errors, however, it's helpful to understand what's happening in the module to create an app that works as intended. Defaults to "production".
 
 ```
 simple-on: `true` or `false`,
@@ -244,7 +244,7 @@ If `true`, simple-index will create the afformentioned simple database even if a
 ```
 delete: [],
 ```
-An array of database names that should be removed from previous versions of indexedDB. This config option exists to ensure possibly large databases that are no longer required are removed.
+An array of database names that should be removed from previous versions of indexedDB. This config option exists to ensure the removal of sensitive or possibly large databases that are no longer required.
 
 A simple-index.config.js file could be written like this:
 ```javascript
