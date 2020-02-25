@@ -186,7 +186,8 @@ simpleIndex.get(key, (err, data) => {
  };
 });
 ```
-###remove
+
+### remove
 *Syntax:*
 ```
 remove(key, [objectStoreName, databaseName,] callback(err, success))
