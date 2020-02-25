@@ -1,29 +1,30 @@
 "use strict";
 
-
-let CONFIG;
-
+// var CONFIG;
+//
 /* this seems an odd hack to allow the package to require config with and without webpack. consider better code */
-try{
-	CONFIG = require('simple-index.config');	
-}
-catch(e) {
-	try {
-		let config_path = '../../../'
-		CONFIG = require(config_path + 'simple-index.config');
-	}
-	catch(e) {
-		try {
-			let config_path = './'
-			CONFIG = require(config_path + 'simple-index.config');
-		}
-		catch(e) {
-			error("simple-index.config.js not found (ignore this error if not using a config file). If using a config file, try placing it in the root folder of the app. If this error still occurs, try placing it in the root folder of the simple-index module with the index.js file. If using webpack, include a resolve alias in the webpack.config.js file.");
-		}
-	}
-}
-						
-const simpleDB = {
+// try{
+// 	CONFIG = require('simple-index.config');
+// }
+// catch(e) {
+// 	try {
+// 		let config_path = '../../../'
+// 		CONFIG = require(config_path + 'simple-index.config');
+// 	}
+// 	catch(e) {
+// 		try {
+// 			let config_path = './'
+// 			CONFIG = require(config_path + 'simple-index.config');
+// 		}
+// 		catch(e) {
+// 			console.error("simple-index.config.js not found (ignore this error if not using a config file). If using a config file, try placing it in the root folder of the app. If this error still occurs, try placing it in the root folder of the simple-index module with the index.js file. If using webpack, include a resolve alias in the webpack.config.js file.");
+// 		}
+// 	}
+// }
+//
+// console.log(CONFIG);
+
+const CONFIG = {
 	schema: {
 		'simpleDB' : {
 			'objStore' : {
@@ -32,31 +33,31 @@ const simpleDB = {
 		}
 	},
 	delete: [],
-	mode : 'production',
+	mode : 'development',
 	simple_on : true
 };
 
-let mode;
+let mode = "development";
 if (CONFIG.mode) {
  	mode = CONFIG.mode;
-} else {
-	mode = 'production';
+// } else {
+// 	mode = 'production';
 };
 
 let simple_on = true;
 if (CONFIG.simple_on === false)  {
 	simple_on = false
 }
-	
-if (simple_on) {
-	if (!CONFIG) {
-		CONFIG = simpleDB;
-	} else {
-		CONFIG.schema['simpleDB'] = simpleDB.schema['simpleDB']
-	};
-}
 
-// TODO: this function will provide a more reliable and less intrusive way of removing old databases. 
+// if (simple_on) {
+// 	if (!CONFIG) {
+// 		CONFIG = simpleDB;
+// 	} else {
+// 		CONFIG.schema['simpleDB'] = simpleDB.schema['simpleDB']
+// 	};
+// }
+
+// TODO: this function will provide a more reliable and less intrusive way of removing old databases.
 function configureCache() {
 
 	if(CONFIG.delete) {
@@ -103,23 +104,23 @@ function databaseOnError(event) {
 
 
 function getCache(db_name, callback) {
-	
+
 	const cache = window.indexedDB.open('current_schema', 1);
-		
+
 	cache.onerror = function(event) {
 		databaseOnError(event);
 	};
 
 	cache.onupgradeneeded = function(event) {
 		const cache_db = event.target.result;
-		
+
 		cache_db.onerror = function(event) {
 			databaseOnError(event);
-		}; 
-		
+		};
+
 		if (event.oldVersion < 1) {
 			const objectStore = cache_db.createObjectStore("cache" , { keyPath: "name"});
-			
+
 			objectStore.transaction.oncomplete = function(event) {
 				const cacheObjectStore = cache_db.transaction("cache", "readwrite").objectStore("cache");
 				for (let db_obj_name in CONFIG.schema) {
@@ -129,37 +130,37 @@ function getCache(db_name, callback) {
 						current: {},
 						previous: {}
 					};
-		      cacheObjectStore.add(new_db_obj_cache);					
+		      cacheObjectStore.add(new_db_obj_cache);
 				};
 		  };
 		};
 	};
-	
+
 	cache.onsuccess = function(event) {
 		const cache_db = event.target.result;
-		
+
 		cache_db.onerror = function(event) {
 			databaseOnError(event);
 		};
-		
+
 		const cache_transaction = cache_db.transaction("cache", "readwrite");
-		
+
 		cache_transaction.onerror = function(event) {
 			databaseOnError(event);
 		};
-		
+
 		const cache_objectStore = cache_transaction.objectStore("cache");
-		
+
 		cache_objectStore.onerror = function(event) {
 			databaseOnError(event);
 		};
-	
+
 		const cache_objStore_request = cache_objectStore.get(db_name);
-	
+
 		cache_objStore_request.onerror = function(event) {
 			databaseOnError(event);
 		};
-	
+
 		cache_objStore_request.onsuccess = function(event) {
 			let cached_db_obj = cache_objStore_request.result;
 			if (!cached_db_obj) {
@@ -185,9 +186,9 @@ function getCache(db_name, callback) {
 
 
 function openDatabase(cache_db, callback) {
-			
+
 	const request = window.indexedDB.open(cache_db.name, cache_db.version);
-	
+
 	request.onerror = function(event) {
 		databaseOnError(event);
 	};
@@ -200,15 +201,15 @@ function openDatabase(cache_db, callback) {
 		};
 
 		if (event.oldVersion < cache_db.version) {
-			
+
 			for (let objStore in cache_db.previous) {
 				if (typeof cache_db.current[objStore] === 'undefined') {
 					try {
-						db.deleteObjectStore(objStore);					
+						db.deleteObjectStore(objStore);
 					}
 					catch(e) {
 						error("no objectStore " + objStore + " in database " + cache_db.name);
-					}	
+					}
 				} else {
 					for (let index in cache_db.previous[objStore].indexes) {
 						if (typeof cache_db.previous[objStore].indexes[index] === 'undefined') {
@@ -222,8 +223,8 @@ function openDatabase(cache_db, callback) {
 						};
 					};
 				};
-			}; 
-			
+			};
+
 
 			for (let objStore in cache_db.current) {
 				try{
@@ -246,7 +247,7 @@ function openDatabase(cache_db, callback) {
 							error(index + " index already exists in objectStore " + objStore);
 						}
 					};
-				}	
+				}
 			};
 		};
  	};
@@ -266,7 +267,7 @@ function openTransaction(db, objstore_name, callback) {
 
 	transaction.onerror = function(event) {
 		databaseOnError(event);
-	}; 
+	};
 
 	callback(transaction);
 };
@@ -277,7 +278,7 @@ function openObjectStore(transaction, objstore_name, callback) {
 
 	objectStore.onerror = function(event) {
 		databaseOnError(event)
-	} 
+	}
 
 	callback(objectStore);
 };
@@ -302,7 +303,7 @@ function openDBRequest(objstore, db_request, arg, callback) {
 		error("Perhaps check config file for mistakes.")
 		callback(null, null);
 	};
-}; 
+};
 
 
 function beginTransaction(arg, objstore_name, cached_db, db_request, callback) {
@@ -316,7 +317,7 @@ function beginTransaction(arg, objstore_name, cached_db, db_request, callback) {
 	 	});
 	});
 };
-	
+
 
 function makeRequest(arg, objstore_name, db_name, db_request, callback) {
 	getCache(db_name, (cached_db) => {
@@ -325,7 +326,7 @@ function makeRequest(arg, objstore_name, db_name, db_request, callback) {
 		});
 	});
 };
-	
+
 
 function commitObject(data, objstore_name, db_name, callback) {
 	makeRequest(data, objstore_name, db_name, 'put', (err, response) => {
@@ -355,13 +356,13 @@ function getObjectStore(objstore_name, db_name, callback) {
 };
 
 /* this function can return hugh quantitiy of data, offer cursor function */
-getObjectStoreCursor = function(objstore_name, db_name, callback) {
+const getObjectStoreCursor = function(objstore_name, db_name, callback) {
 	getObjectStore(objstore_name, objstore_name, db_name, (err, arrayGen) => {
 		callback(err, arrayGen);
 	});
 };
-		
-		
+
+
 /*put expects first arg to be array of data or single data, a callback, and an optional objectstore and dbname */
 const put = exports.put = function() {
 	let objectStoreName, dBName, callback;
@@ -372,7 +373,7 @@ const put = exports.put = function() {
 		callback = arguments[3];
 	} else if (obj.objectstore) {
 		objectStoreName = obj.objectstore;
-		dBName = obj.dbname;		
+		dBName = obj.dbname;
 		callback = arguments[1];
 	} else {
 		objectStoreName = 'objStore';
@@ -384,9 +385,9 @@ const put = exports.put = function() {
 		for (let to_store of obj) {
 			commitObject(to_store, objectStoreName, dBName, (err, success) => {
 				if (err) {
-					callback(err, success);
+					return callback(err, success);
 				};
-			});	
+			});
 		};
 		callback(null, success);
 	} else {
@@ -405,7 +406,7 @@ const get = exports.get = function() {
 		callback = arguments[3];
 	} else if (key.objectstore) {
 		objectStoreName = key.objectstore;
-		dBName = key.dbname;		
+		dBName = key.dbname;
 		callback = arguments[1];
 	} else {
 		objectStoreName = 'objStore';
@@ -438,7 +439,7 @@ exports.remove = function(key, objstore_name, db_name, callback) {
 
 exports.delDatabase = function(name) {
 	try {
-		window.indexedDB.delete(name);		
+		window.indexedDB.delete(name);
 	}
 	catch(e) {
 		error("No database with name: " + name);
