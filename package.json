@@ -1,6 +1,6 @@
 {
   "name": "simple-index",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "A simple library for storing JSON objects client side.",
   "main": "index.js",
   "files": [

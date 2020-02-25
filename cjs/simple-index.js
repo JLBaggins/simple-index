@@ -1,61 +1,49 @@
 "use strict";
 
-// var CONFIG;
-//
+let CONFIG;
+
 /* this seems an odd hack to allow the package to require config with and without webpack. consider better code */
-// try{
-// 	CONFIG = require('simple-index.config');
-// }
-// catch(e) {
-// 	try {
-// 		let config_path = '../../../'
-// 		CONFIG = require(config_path + 'simple-index.config');
-// 	}
-// 	catch(e) {
-// 		try {
-// 			let config_path = './'
-// 			CONFIG = require(config_path + 'simple-index.config');
-// 		}
-// 		catch(e) {
-// 			console.error("simple-index.config.js not found (ignore this error if not using a config file). If using a config file, try placing it in the root folder of the app. If this error still occurs, try placing it in the root folder of the simple-index module with the index.js file. If using webpack, include a resolve alias in the webpack.config.js file.");
-// 		}
-// 	}
-// }
-//
-// console.log(CONFIG);
-
-const CONFIG = {
-	schema: {
-		'simpleDB' : {
-			'objStore' : {
-				keyPath : 'key'
-			},
+try{
+	CONFIG = require('simple-index.config');
+}
+catch(e) {
+	try {
+		let config_path = '../../../'
+		CONFIG = require(config_path + 'simple-index.config');
+	}
+	catch(e) {
+		try {
+			let config_path = './'
+			CONFIG = require(config_path + 'simple-index.config');
 		}
-	},
-	delete: [],
-	mode : 'development',
-	simple_on : true
-};
-
-if (CONFIG.mode) {
-	let mode = "development";
- 	mode = CONFIG.mode;
-// } else {
-// 	mode = 'production';
-};
-
-let simple_on = true;
-if (CONFIG.simple_on === false)  {
-	simple_on = false
+		catch(e) {
+			const CONFIG = {
+				schema: {
+					'simpleDB' : {
+						'objStore' : {
+							keyPath : 'key'
+						},
+					}
+				},
+				delete: [],
+				mode : 'production',
+				simple_on : true
+			};
+		}
+	}
 }
 
-// if (simple_on) {
-// 	if (!CONFIG) {
-// 		CONFIG = simpleDB;
-// 	} else {
-// 		CONFIG.schema['simpleDB'] = simpleDB.schema['simpleDB']
-// 	};
-// }
+if (!CONFIG.mode) {
+ 	CONFIG.mode = "production";
+};
+
+if (typeof CONFIG.simple_on === "undefined" || CONFIG.simple_on) {
+	CONFIG.schema["simpleDB"] = {
+																'objStore' : {
+																	keyPath : 'key'
+																}
+															}
+}
 
 // TODO: this function will provide a more reliable and less intrusive way of removing old databases.
 function configureCache() {
@@ -69,7 +57,7 @@ function configureCache() {
 		};
 	};
 
-	if(!simple_on) {
+	if(!CONFIG.simple_on) {
 		try{
 			window.indexedDB.deleteDatabase("simpleDB")
 		}
@@ -367,86 +355,41 @@ const getObjectStoreCursor = function(objstore_name, db_name, callback) {
 
 
 /*put expects first arg to be array of data or single data, a callback, and an optional objectstore and dbname */
-const put = exports.put = function() {
-	let objectStoreName, dBName, callback;
-	let obj = arguments[0];
-	if (arguments.length == 4) {
-		objectStoreName = arguments[1];
-		dBName = arguments[2];
-		callback = arguments[3];
-	} else if (obj.objectstore) {
+exports.put = function(obj, {objectStoreName: "objStore"}, {dBName: "simpleDB"}, callback) {
+	if(typeof obj !== "object") {
+		callback("Object to put is not an object");
+	};
+	if (obj.objectstore) {
 		objectStoreName = obj.objectstore;
 		dBName = obj.dbname;
 		callback = arguments[1];
-	} else {
-		objectStoreName = 'objStore';
-		dBName = 'simpleDB';
+	} else if(arguments.length === 3) {
 		callback = arguments[1];
+		objectStoreName = "objStore";
 	};
-	if (typeof obj === 'array') {
-		let success;
-		for (let to_store of obj) {
-			commitObject(to_store, objectStoreName, dBName, (err, success) => {
-				if (err) {
-					return callback(err, success);
-				};
-			});
-		};
-		callback(null, success);
-	} else {
-		commitObject(obj, objectStoreName, dBName, (err, success) => {
-			callback(err, success);
-	 	});
-	};
+	commitObject(obj, objectStoreName, dBName, (err, success) => {
+		callback(err, success);
+ 	});
 };
 
-const get = exports.get = function() {
-	let objectStoreName, dBName, callback;
-	let key = arguments[0];
-	if (arguments.length == 4) {
-		objectStoreName = arguments[1];
-		dBName = arguments[2];
-		callback = arguments[3];
-	} else if (key.objectstore) {
+exports.get = function(key, {objectStoreName: "objStore"}, {dBName: "simpleDB"}, callback) {
+	if(key.objectstore) {
 		objectStoreName = key.objectstore;
 		dBName = key.dbname;
 		callback = arguments[1];
-	} else {
-		objectStoreName = 'objStore';
-		dBName = 'simpleDB';
+	} else if(arguments.length === 3) {
 		callback = arguments[1];
+		objectStoreName = "objStore";
 	};
-	if (typeof key === objectStoreName) {
-		let success;
-		for (let to_get of key) {
-			getObject(to_get, objectStoreName, dBName, (err, object) => {
-				if (err) {
-					callback(err, null);
-				};
-				callback(err, object);
-			});
-		};
-	} else {
-		getObject(key, objectStoreName, dBName, (err, object) => {
-			callback(err, object);
-		});
-	};
+	getObject(key, objectStoreName, dBName, (err, object) => {
+		callback(err, object);
+	});
 };
 
 exports.remove = function(key, objstore_name, db_name, callback) {
 	removeObject(key, objstore_name, db_name, (err, success) => {
 		callback(err, success);
 	});
-};
-
-
-exports.delDatabase = function(name) {
-	try {
-		window.indexedDB.delete(name);
-	}
-	catch(e) {
-		errorWarning("No database with name: " + name);
-	}
 };
 
 
