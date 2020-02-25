@@ -37,8 +37,8 @@ const CONFIG = {
 	simple_on : true
 };
 
-let mode = "development";
 if (CONFIG.mode) {
+	let mode = "development";
  	mode = CONFIG.mode;
 // } else {
 // 	mode = 'production';
@@ -90,16 +90,19 @@ function configureCache() {
 };
 
 
-function error(message) {
+			
+function errorWarning(message) {
 	if (mode === "development") {
-		console.error(message);
+		if(typeof console !== "undefined") {
+			console.error(message);
+		}
 	};
 };
 
 
 function databaseOnError(event) {
-	error(event);
-	error('simple-indexedDB database error, indexedDB error: ' + event.target.errorCode);
+	errorWarning(event);
+	errorWarning('simple-indexedDB database error, indexedDB error: ' + event.target.errorCode);
 };
 
 
@@ -208,7 +211,7 @@ function openDatabase(cache_db, callback) {
 						db.deleteObjectStore(objStore);
 					}
 					catch(e) {
-						error("no objectStore " + objStore + " in database " + cache_db.name);
+						errorWarning("no objectStore " + objStore + " in database " + cache_db.name);
 					}
 				} else {
 					for (let index in cache_db.previous[objStore].indexes) {
@@ -218,7 +221,7 @@ function openDatabase(cache_db, callback) {
 								objectStore.deleteIndex(index);
 							}
 							catch(e) {
-								error("no index " + index + " in objectStore " + objStore);
+								errorWarning("no index " + index + " in objectStore " + objStore);
 							}
 						};
 					};
@@ -238,13 +241,13 @@ function openDatabase(cache_db, callback) {
 					};
 				}
 				catch(e) {
-					error("objectstore " + objStore + " already in database " + cache_db.name);
+					errorWarning("objectstore " + objStore + " already in database " + cache_db.name);
 					for (let index in cache_db.current[objStore].indexes) {
 						try {
 							objectStore.createIndex(objStore_index, objStore_index, {unique: cache_db.current[objStore].indexes[objStore_index]});
 						}
 						catch(e) {
-							error(index + " index already exists in objectStore " + objStore);
+							errorWarning(index + " index already exists in objectStore " + objStore);
 						}
 					};
 				}
@@ -289,7 +292,7 @@ function openDBRequest(objstore, db_request, arg, callback) {
 		const request = objstore[db_request](arg);
 
 		request.onerror = function(event) {
-			error(db_request + " could not be executed with args: " + arg);
+			errorWarning(db_request + " could not be executed with args: " + arg);
 			callback(null, null);
 		};
 
@@ -299,8 +302,8 @@ function openDBRequest(objstore, db_request, arg, callback) {
 
 	}
 	catch(e) {
-		error("No such request: " + db_request);
-		error("Perhaps check config file for mistakes.")
+		errorWarning("No such request: " + db_request);
+		errorWarning("Perhaps check config file for mistakes.")
 		callback(null, null);
 	};
 };
@@ -442,7 +445,7 @@ exports.delDatabase = function(name) {
 		window.indexedDB.delete(name);
 	}
 	catch(e) {
-		error("No database with name: " + name);
+		errorWarning("No database with name: " + name);
 	}
 };
 

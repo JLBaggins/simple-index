@@ -16,7 +16,7 @@ const obj_to_store = {
 }
 
 simpleIndex.put(obj_to_store, (err, success) => {
-	if (err) {
+	if(err) {
 		console.error(err);
 	} else if (success) {
 		alert("Book saved!");
@@ -27,7 +27,7 @@ simpleIndex.put(obj_to_store, (err, success) => {
 
 
 simpleIndex.get("book: foo", (err, obj) => {
-	if (err) {
+	if(err) {
 		console.error(err);
 	} else {
 		// do something with obj;
@@ -47,14 +47,17 @@ put(object, [objectStoreName, databaseName,] callback(err, success))
 ```
 
 *Parameters:*
+```
 `object` - object to be put
 `objectStoreName` - the name of the objectStore to use
 `databaseName` - the name of the database to use
 `callback` - a callback function which expects an err string and success boolean
+```
 
+There are three options for using the `<put>` function. 
+Without a config file or if opting for the included database, simply call <put> without the optional objectStoreName or databaseName, including a unique key property with the object. Note: if `<put>` finds an object in the objectstore with the same 'key' it will update that object rather than store another. 
 
-There are three options for using the `<put>` function. Which method to use depends on the config file and the object to be stored.
-If using the included simple database, no objectStore_name or database_name is required. The object must have a property with the key  ‘key’, and a unique value that can be used to retrieve the object. For example:
+An example:
 ```javascript
 const object_to_store = {
 	key: "favorites", // this property is necessary
@@ -64,16 +67,16 @@ const object_to_store = {
 };
 
 simpleIndex.put(object_to_store, (err, success) => {
-	if (err) {
+	if(err) {
 		console.error(err);
 	};
-	if (success) {
+	if(success) {
 		alert("Saved your favorites!");
 	};
 });
 ```
 
-Using a database from the config file requires the objectStore name and database name arguments to be supplied. They can either be included as arguments in the function call:
+Using a database from the config file requires the objectStoreName name and databaseName name arguments to be supplied. They can either be included as arguments in the function call:
 ```javascript
 const object_to_store = {
 	key: "favorites",
@@ -82,15 +85,15 @@ const object_to_store = {
 	flower: "daisy"
 };
 
-const objectStore = "preferences";
+const objectStoreName = "preferences";
 
-const database = "user";
+const databaseName = "user";
 
-simpleIndex.put(object_to_store, objectStore, database, (err, success) => {
-	if (err) {
+simpleIndex.put(object_to_store, objectStoreName, databaseName, (err, success) => {
+	if(err) {
 		console.error(err);
 	};
-	if (success) {
+	if(success) {
 		alert("Saved your favorites!");
 	};
 });
@@ -99,21 +102,21 @@ simpleIndex.put(object_to_store, objectStore, database, (err, success) => {
 Or as properties of the object to be stored:
 ```javascript
 const object_to_store = {
-	key: "favorites",
-	color: "teal",
-	pets: "chihuahua",
-	flower: "daisy"
-	objectStore: "preferences"
-	database: "user"
+ key: "favorites",
+ objectStoreName: "preferences"
+ databaseName: "user"
+ color: "teal",
+ pets: "chihuahua",
+ flower: "daisy"
 };
 
 simpleIndex.put(object_to_store, (err, success) => {
-	if (err) {
-		console.error(err);
-	};
-	if (success) {
-		alert("Saved your favorites!");
-	};
+ if(err) {
+	console.error(err);
+ };
+ if(success) {
+	alert("Saved your favorites!");
+ };
 });
 ```
 
@@ -126,59 +129,61 @@ get(key, objectStoreName, databaseName, callback(err, data))
 ```
 
 *Parameters:*
-`key` - either the key of the object to get, or a key object with properties key, objectStore and database
+```
+`key` - either the key of the object to get, or a key object with properties key, objectStoreName and databaseName
 `objectStoreName` - the name of the objectStore to use
 `databaseName` - the name of the database to use
 `callback` - a callback function which expects an err string and data object 
+```
 
 `<get>` works similarly to put. There are three options, and as with `<put>` it depends on the config file and the object to be retrieved.
-If using the included simple database, no objectStore_name or database_name is required. The key argument is required. For example:
+If using the included simple database, no objectStoreName or databaseName is required. The key property is required. For example:
 ```javascript
 const key = "favorites";
 
 simpleIndex.get(key, (err, data) => {
-	if (err) {
-		console.error(err);
-	};
-	if (data) {
-		//do something with data
-	};
+ if(err) {
+	console.error(err);
+ };
+ if(data) {
+	//do something with data
+ };
 });
 ```
 
-Using a database from the config file requires the objectStore name and database name arguments to be supplied. They can either be included as arguments in the function call:
+Using a database from the config file requires the objectStoreName name and databaseName name arguments to be supplied. They can either be included as arguments in the function call:
 ```javascript
 const key = "favorites";
 
-const objectStore = "preferences";
+const objectStoreName = "preferences";
 
-const database = "user";
+const databaseName = "user";
 
-simpleIndex.get(key, objectStore, database, (err, data) => {
-	if (err) {
-		console.error(err);
-	};
-	if (data) {
-		// do something with data
-	};
+simpleIndex.get(key, objectStoreName, databaseName, (err, data) => {
+ if(err) {
+	console.error(err);
+ };
+ if(data) {
+	// do something with data
+ };
 });
 ```
 
 Or as properties of a key object to be retrieved:
 ```javascript
 const key = {
-	key: "favorites",
-	objectStore: "preferences"
-	database: "user"
+ key: "favorites",
+ objectStoreName: "preferences"
+ databaseName: "user"
 };
 
 simpleIndex.get(key, (err, data) => {
-	if (err) {
-		console.error(err);
-	};
-	if (data) {
-		// do something with data
-	};
+ if(err) {
+	console.error(err);
+ ;
+ if(data) {
+	// do something with data
+ ;
 });
 ```
 ###remove
@@ -188,12 +193,12 @@ remove(key, [objectStoreName, databaseName,] callback(err, success))
 ```
 
 *Parameters:*
-`key` - either the key of the object to be removed, or a key object with properties key, objectStore and database.
+`key` - either the key of the object to be removed, or a key object with properties key, objectStoreName and databaseName.
 `objectStoreName` - the name of the objectStore to use
 `databaseName` - the name of the database to use
 `callback` - a callback function which expects an err string and success boolean
 
-Much like the `<get>` function, `<remove>` can be used with three options. Rather than returning data however, success will either be true if the data was succefully removed from the database or false if it wasn’t able to be removed (perhaps because it didn’t exist).  
+Much like the `<get>` function, `<remove>` can be used with three options. Rather than returning data however, success will either be true if the data was succefully removed from the database or false if it wasn’t able to be removed. If the object was not in the database, success will still be true.  
 
 ## Configuration
 ### Creating the simple-index.config.js file.
@@ -202,23 +207,23 @@ For developers who need a more robust database with many objectStores, or even m
 
 ```javascript
 module.exports = {
-	schema: {
-		"database_name": {
-			"objectStore_name": {
-				keyPath: "key_name"
-			},
-		},
+ schema: {
+	"databaseName": {
+	 "objectStoreName": {
+		keyPath: "key"
+	 },
 	},
+ },
 }
 ```
 
-The simple-index package will automatically search for and use the config file to construct the database(s) in the indexedDB. The prefered place to save the file is in the root of the app. If using a bundler such as webpack, a resolve alias will need to be included in the webpack config file:
+The simple-index module will automatically search for and use the config file to construct the database(s) in the indexedDB. The prefered place to save the file is in the root of the app. If using a bundler such as webpack, a resolve alias will need to be included in the webpack config file:
 ```
 resolve: {
-        alias: {
-            'simple-index.config$' : path.resolve(__dirname, 'simple-index.config.js')
-        }
-    },
+ alias: {
+  'simple-index.config$' : path.resolve(__dirname, 'simple-index.config.js')
+ }
+},
 ```
 
 *Other Config File Options:*
@@ -241,26 +246,26 @@ An array of database names that should be removed from previous versions of inde
 A simple-index.config.js file could be written like this:
 ```javascript
 module.exports = {
-	schema: {
-		"books": {
-			"fiction": {
-				keyPath: "title"
-			},
-			"non-fiction": {
-				keyPath: "title"
-			},
-		},
-		"food": {
-			"cheese": {
-				keyPath: "type"
-			},
-			"crackers": {
-				keyPath: "flavor"
-		  },
-		},
+ schema: {
+	"books": {
+	 "fiction": {
+		keyPath: "title"
+	 },
+	 "non-fiction": {
+		keyPath: "title"
+	 },
 	},
-	mode: "development",
-	simple-on: false,
-	delete: ["oldDB", "yet_another_oldDB"],
+	"food": {
+	 "cheese": {
+	  keyPath: "type"
+	 },
+	 "crackers": {
+		keyPath: "flavor"
+	 },
+	},
+ },
+ mode: "development",
+ simple-on: false,
+ delete: ["oldDB", "yet_another_oldDB"],
 };
 ```
