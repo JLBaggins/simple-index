@@ -291,7 +291,7 @@ function openDBRequest(objstore, db_request, arg, callback) {
 	}
 	catch(e) {
 		errorWarning("No such request: " + db_request);
-		errorWarning("Perhaps check config file for mistakes.")
+		errorWarning("Perhaps check either config file or arg for mistakes.")
 		callback(null, null);
 	};
 };
@@ -355,7 +355,7 @@ const getObjectStoreCursor = function(objstore_name, db_name, callback) {
 
 
 /*put expects first arg to be array of data or single data, a callback, and an optional objectstore and dbname */
-exports.put = function(obj, {objectStoreName: "objStore"}, {dBName: "simpleDB"}, callback) {
+exports.put = function(obj, objectStoreName = "objStore", dBName = "simpleDB", callback) {
 	if(typeof obj !== "object") {
 		callback("Object to put is not an object");
 	};
@@ -372,7 +372,7 @@ exports.put = function(obj, {objectStoreName: "objStore"}, {dBName: "simpleDB"},
  	});
 };
 
-exports.get = function(key, {objectStoreName: "objStore"}, {dBName: "simpleDB"}, callback) {
+exports.get = function(key, objectStoreName = "objStore", dBName = "simpleDB", callback) {
 	if(key.objectstore) {
 		objectStoreName = key.objectstore;
 		dBName = key.dbname;
