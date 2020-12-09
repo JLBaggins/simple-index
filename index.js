@@ -1,3 +1,3 @@
-'use strict';
+'use strict'
 
-module.exports = require('./cjs/simple-index.js');
+module.exports = require('./cjs/simple-index.js')

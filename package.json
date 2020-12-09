@@ -1,6 +1,6 @@
 {
   "name": "simple-index",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "A simple library for storing JSON objects client side.",
   "main": "index.js",
   "files": [
@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "start": "node scripts/start.js",
-    "test": "karma start --single-run karma.conf.js",
+    "test": "standard",
     "build": "node scripts/build.js"
   },
   "repository": {
@@ -26,14 +26,7 @@
   },
   "homepage": "https://github.com/JLBaggins/simple-index#readme",
   "devDependencies": {
-    "browserify": "^16.5.0",
-    "chai": "^4.2.0",
-    "karma": "^4.4.1",
-    "karma-browserify": "^7.0.0",
-    "karma-chai": "^0.1.0",
-    "karma-chrome-launcher": "^3.1.0",
-    "karma-mocha": "^1.3.0",
-    "mocha": "^7.0.1",
-    "watchify": "^3.11.1"
-  }
+    "standard": "^16.0.3"
+  },
+  "dependencies": {}
 }
